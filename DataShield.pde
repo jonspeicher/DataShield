@@ -39,30 +39,16 @@ void initLog()
   Serial.println(name);
 }
 
-void logString(char string[])
+void logString(char userString[])
 {
-  uint32_t tick = millis();
+  char timeString[40];
   DateTime wall = s_realTimeClock.now();
   
-  s_logFile.print(tick);
-  s_logFile.print(", ");
-  
-  s_logFile.print('"');
-  s_logFile.print(wall.year(), DEC);
-  s_logFile.print("/");
-  s_logFile.print(wall.month(), DEC);
-  s_logFile.print("/");
-  s_logFile.print(wall.day(), DEC);
-  s_logFile.print(" ");
-  s_logFile.print(wall.hour(), DEC);
-  s_logFile.print(":");
-  s_logFile.print(wall.minute(), DEC);
-  s_logFile.print(":");
-  s_logFile.print(wall.second(), DEC);
-  s_logFile.print('"');
-  s_logFile.print(", ");
-  
-  s_logFile.println(string);
+  sprintf(timeString, "%ld, \"%02d-%02d-%04d %d:%02d:%02d\", ", 
+    millis(), wall.month(), wall.day(), wall.year(), wall.hour(), wall.minute(), wall.second());
+    
+  s_logFile.print(timeString);
+  s_logFile.println(userString);
 }
 
 void logFlush()
