@@ -7,7 +7,6 @@
 // -------------------------------------------------------------------------------------------------
 
 #include <Wire.h>
-
 #include "RTClib.h"
 #include "SdFat.h"
 
@@ -21,6 +20,8 @@ static Sd2Card    s_sdCard;
 static SdVolume   s_fatVolume;
 static SdFile     s_rootDirectory;
 static SdFile     s_logFile;
+static char       s_filename[MAX_FILE_NAME_LENGTH];
+static boolean    s_open = false;
 
 void initLog()
 {
@@ -31,20 +32,22 @@ void initLog()
   s_fatVolume.init(s_sdCard);
   s_rootDirectory.openRoot(s_fatVolume);
   
-  char filename[MAX_FILE_NAME_LENGTH];
-  
   for (int index = 0; index < MAX_LOG_FILE_COUNT + 1; index++) 
   {
-    sprintf(filename, "%s%d%s", BASE_LOG_FILE_NAME, index, LOG_FILE_EXTENSION);
-    if (s_logFile.open(s_rootDirectory, filename, O_CREAT | O_EXCL | O_WRITE)) break;
+    sprintf(s_filename, "%s%d%s", BASE_LOG_FILE_NAME, index, LOG_FILE_EXTENSION);
+    
+    if (s_logFile.open(s_rootDirectory, s_filename, O_CREAT | O_EXCL | O_WRITE))
+    {
+      s_open = true;
+      break;
+    }
   }
-  
-  Serial.print("Logging to: ");
-  Serial.println(filename);
 }
 
 void logString(char userString[])
 {
+  if (!s_open) return;
+  
   char timeString[40];
   DateTime wall = s_realTimeClock.now();
   
@@ -57,18 +60,27 @@ void logString(char userString[])
 
 void logFlush()
 {
+  if (!s_open) return;
   s_logFile.sync();
+}
+
+void getLogFilename(char userString[])
+{
+  strcpy(userString, s_filename);
 }
 
 //------------------------------------------------------------------------------------------
 
 void setup(void)
-{
-  Serial.begin(9600);
-  
+{ 
   initLog();
-  logString("LOG BEGIN");    
-  logFlush();
+  logString("LOG BEGIN");
+  
+  char logFilename[12];
+  getLogFilename(logFilename);
+  
+  Serial.begin(9600);
+  Serial.println(logFilename);
 }
 
 void loop(void)
