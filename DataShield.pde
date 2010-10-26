@@ -41,6 +41,12 @@ void initLog()
 
 void logString(char string[])
 {
+  s_logFile.print(string);
+}
+
+void logFlush()
+{
+  s_logFile.sync();
 }
 
 //------------------------------------------------------------------------------------------
@@ -55,12 +61,12 @@ void setup(void)
   initLog();
 
   s_logFile.println("LOGGING TEH BALLOON DATAZ");    
-  s_logFile.sync();
+  logFlush();
 }
 
 void loop(void)
 {
-  delay((LOG_INTERVAL -1) - (millis() % LOG_INTERVAL));
+  logString("Test string, ");
   
   DateTime now = s_realTimeClock.now();
   uint32_t m = millis();
@@ -89,8 +95,7 @@ void loop(void)
   s_logFile.println();
   Serial.println("Logging");
   
-  if ((millis() - syncTime) <  SYNC_INTERVAL) return;
-  syncTime = millis();
-  s_logFile.sync();
   Serial.println("Syncing");
+  logFlush();
+  delay(1500);
 }
