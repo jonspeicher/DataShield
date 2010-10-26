@@ -41,7 +41,28 @@ void initLog()
 
 void logString(char string[])
 {
-  s_logFile.print(string);
+  uint32_t tick = millis();
+  DateTime wall = s_realTimeClock.now();
+  
+  s_logFile.print(tick);
+  s_logFile.print(", ");
+  
+  s_logFile.print('"');
+  s_logFile.print(wall.year(), DEC);
+  s_logFile.print("/");
+  s_logFile.print(wall.month(), DEC);
+  s_logFile.print("/");
+  s_logFile.print(wall.day(), DEC);
+  s_logFile.print(" ");
+  s_logFile.print(wall.hour(), DEC);
+  s_logFile.print(":");
+  s_logFile.print(wall.minute(), DEC);
+  s_logFile.print(":");
+  s_logFile.print(wall.second(), DEC);
+  s_logFile.print('"');
+  s_logFile.print(", ");
+  
+  s_logFile.println(string);
 }
 
 void logFlush()
@@ -51,51 +72,20 @@ void logFlush()
 
 //------------------------------------------------------------------------------------------
 
-#define LOG_INTERVAL  1000
-#define SYNC_INTERVAL 1000
-uint32_t syncTime = 0;
-
 void setup(void)
 {
   Serial.begin(9600);
+  
   initLog();
-
-  s_logFile.println("LOGGING TEH BALLOON DATAZ");    
+  logString("LOG BEGIN");    
   logFlush();
 }
 
 void loop(void)
 {
-  logString("Test string, ");
+  Serial.println("Logging data...");
   
-  DateTime now = s_realTimeClock.now();
-  uint32_t m = millis();
-  
-  s_logFile.print(m);
-  s_logFile.print(", ");    
-
-  s_logFile.print(now.unixtime());
-  s_logFile.print(", ");
-  s_logFile.print('"');
-  s_logFile.print(now.year(), DEC);
-  s_logFile.print("/");
-  s_logFile.print(now.month(), DEC);
-  s_logFile.print("/");
-  s_logFile.print(now.day(), DEC);
-  s_logFile.print(" ");
-  s_logFile.print(now.hour(), DEC);
-  s_logFile.print(":");
-  s_logFile.print(now.minute(), DEC);
-  s_logFile.print(":");
-  s_logFile.print(now.second(), DEC);
-  s_logFile.print('"');
- 
-  s_logFile.print(", MAD DATAZZZ");
-
-  s_logFile.println();
-  Serial.println("Logging");
-  
-  Serial.println("Syncing");
+  logString("data, data, data, data, data");
   logFlush();
-  delay(1500);
+  delay(5000);
 }
