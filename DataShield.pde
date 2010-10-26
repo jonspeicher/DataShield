@@ -11,6 +11,11 @@
 #include "RTClib.h"
 #include "SdFat.h"
 
+#define BASE_LOG_FILE_NAME   "data"
+#define LOG_FILE_EXTENSION   ".csv"
+#define MAX_LOG_FILE_COUNT   99
+#define MAX_FILE_NAME_LENGTH 12
+
 static RTC_DS1307 s_realTimeClock;
 static Sd2Card    s_sdCard;
 static SdVolume   s_fatVolume;
@@ -26,17 +31,16 @@ void initLog()
   s_fatVolume.init(s_sdCard);
   s_rootDirectory.openRoot(s_fatVolume);
   
-  char name[] = "LOGGER00.CSV";
+  char filename[MAX_FILE_NAME_LENGTH];
   
-  for (uint8_t i = 0; i < 100; i++) 
+  for (int index = 0; index < MAX_LOG_FILE_COUNT + 1; index++) 
   {
-    name[6] = i/10 + '0';
-    name[7] = i%10 + '0';
-    if (s_logFile.open(s_rootDirectory, name, O_CREAT | O_EXCL | O_WRITE)) break;
+    sprintf(filename, "%s%d%s", BASE_LOG_FILE_NAME, index, LOG_FILE_EXTENSION);
+    if (s_logFile.open(s_rootDirectory, filename, O_CREAT | O_EXCL | O_WRITE)) break;
   }
   
   Serial.print("Logging to: ");
-  Serial.println(name);
+  Serial.println(filename);
 }
 
 void logString(char userString[])
